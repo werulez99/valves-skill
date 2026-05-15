@@ -1,5 +1,5 @@
 #!/bin/bash
-# Valves v1.8.3 Installer
+# Valves v1.8.1 Installer
 # Installs the Valves methodology overlay for Plamen V2.
 #
 # Prerequisites: Plamen V2 installed at ~/.plamen/
@@ -14,7 +14,7 @@ CLAUDE_MD="$HOME/.claude/CLAUDE.md"
 die()  { echo "ERROR: $1" >&2; exit 1; }
 info() { echo "  + $1"; }
 
-echo "=== Valves v1.8.3 Installer ==="
+echo "=== Valves v1.8.1 Installer ==="
 echo ""
 
 [ -f "$HOME/.plamen/scripts/plamen_driver.py" ] || die "Plamen V2 not found at ~/.plamen/. Install Plamen V2 first."
@@ -32,7 +32,6 @@ chmod +x "$VALVES_HOME/adapter/inject_methodology.sh"
 chmod +x "$VALVES_HOME/adapter/install_overlay.sh"
 chmod +x "$VALVES_HOME/adapter/smoke_test.sh"
 chmod +x "$VALVES_HOME/bin/valves-plamen"
-chmod +x "$VALVES_HOME/bin/summarize-exploit-attempts"
 info "Valves tree installed to $VALVES_HOME"
 
 echo "Installing Layer 2 rules..."
@@ -52,7 +51,7 @@ else
     cat >> "$CLAUDE_MD" << 'VALVESBLOCK'
 
 <!-- VALVES:START — managed by valves overlay, do not edit -->
-## Valves Methodology Overlay (v1.8.3)
+## Valves Methodology Overlay (v1.8.1)
 
 Always-loaded (via ~/.claude/rules/): doctrine, proof-discipline, exploit-preservation.
 
@@ -62,8 +61,8 @@ When `{SCRATCHPAD}/_valves_methodology/` exists, Read listed files at phase star
 | Phase Pattern | Scratchpad Files |
 |---------------|-----------------|
 | recon | pattern-integration.md |
-| breadth, rescan* | pattern-integration.md, attacker-objective-matrix.md, exploit-attempt-logging.md |
-| depth, attention* | seed-methodology.md, confidence-scoring-overlay.md, attacker-objective-matrix.md, exploit-attempt-logging.md |
+| breadth, rescan* | pattern-integration.md, attacker-objective-matrix.md |
+| depth, attention* | seed-methodology.md, confidence-scoring-overlay.md, attacker-objective-matrix.md |
 | inventory*, dedup | bug-class-registry.md, bug-class-propagation.md |
 | chain* | ev-ranking.md, attack-thesis-methodology.md, exploit-composition.md, attacker-objective-matrix.md |
 | verify*, sc_verify* | ev-ranking.md |

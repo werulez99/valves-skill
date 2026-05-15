@@ -60,8 +60,8 @@ done
 
 # 2b. v1.8.1 adversarial methodology modules
 echo ""
-echo "--- Adversarial Modules (v1.8.2) ---"
-for f in attacker-objective-matrix.md exploit-composition.md pattern-candidate-schema.md exploit-attempt-logging.md; do
+echo "--- Adversarial Modules (v1.8.1) ---"
+for f in attacker-objective-matrix.md exploit-composition.md pattern-candidate-schema.md; do
     file_or_link_exists ~/.valves/methodology/$f && check 0 "$f" || check 1 "$f"
 done
 
@@ -168,7 +168,7 @@ echo "--- Adapter Scripts ---"
 echo ""
 echo "--- Inject Script Coverage ---"
 INJECT=~/.valves/adapter/inject_methodology.sh
-for f in attacker-objective-matrix.md exploit-composition.md pattern-candidate-schema.md exploit-attempt-logging.md; do
+for f in attacker-objective-matrix.md exploit-composition.md pattern-candidate-schema.md; do
     grep -q "$f" "$INJECT" 2>/dev/null && check 0 "inject_methodology.sh includes $f" || check 1 "inject_methodology.sh missing $f"
 done
 
@@ -179,12 +179,6 @@ echo "--- Wrapper Script ---"
 grep -q "detect_language" ~/.valves/bin/valves-plamen 2>/dev/null && check 0 "wrapper has detect_language()" || check 1 "wrapper missing detect_language()"
 grep -q "inject-only" ~/.valves/bin/valves-plamen 2>/dev/null && check 0 "wrapper supports inject-only mode" || check 1 "wrapper missing inject-only mode"
 
-# 9b. Coverage summary parser
-echo ""
-echo "--- Coverage Summary Parser ---"
-[ -x ~/.valves/bin/summarize-exploit-attempts ] && check 0 "summarize-exploit-attempts executable" || check 1 "summarize-exploit-attempts not executable"
-grep -q "exploit_attempt_coverage" ~/.valves/bin/summarize-exploit-attempts 2>/dev/null && check 0 "parser writes exploit_attempt_coverage.md" || check 1 "parser missing output file reference"
-
 # 10. Methodology injection test
 echo ""
 echo "--- Injection Test ---"
@@ -193,7 +187,7 @@ bash ~/.valves/adapter/inject_methodology.sh "$TEST_SCRATCH" > /dev/null 2>&1
 INJECTED=$(find "$TEST_SCRATCH/_valves_methodology" -name "*.md" -maxdepth 1 2>/dev/null | wc -l)
 [ "$INJECTED" -ge 25 ] && check 0 "Injection test: $INJECTED files injected to temp scratchpad" || check 1 "Injection test: only $INJECTED files (expected 25+)"
 # Verify new modules were injected
-for f in attacker-objective-matrix.md exploit-composition.md pattern-candidate-schema.md exploit-attempt-logging.md; do
+for f in attacker-objective-matrix.md exploit-composition.md pattern-candidate-schema.md; do
     [ -f "$TEST_SCRATCH/_valves_methodology/$f" ] && check 0 "Injected: $f" || check 1 "Not injected: $f"
 done
 rm -rf "$TEST_SCRATCH"

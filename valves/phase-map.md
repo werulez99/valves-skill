@@ -17,9 +17,9 @@
 | V2 Phase Pattern | Scratchpad Methodology Files | Reasoning |
 |------------------|------------------------------|-----------|
 | `recon` | `pattern-integration.md` | Pattern library awareness from the start |
-| `breadth`, `rescan*` | `pattern-integration.md`, `attacker-objective-matrix.md`, `exploit-attempt-logging.md` | Pattern-guided discovery + objective-driven framing + coverage logging |
+| `breadth`, `rescan*` | `pattern-integration.md`, `attacker-objective-matrix.md` | Pattern-guided discovery + objective-driven framing |
 | `inventory*`, `sc_semantic_dedup` | `bug-class-registry.md`, `bug-class-propagation.md`, `attribution-methodology.md` | Bug class taxonomy for grouping |
-| `depth`, `attention_repair` | `seed-methodology.md`, `confidence-scoring-overlay.md`, `attacker-objective-matrix.md`, `exploit-attempt-logging.md` | Seeds + lenses + objective pressure-test + coverage logging |
+| `depth`, `attention_repair` | `seed-methodology.md`, `confidence-scoring-overlay.md`, `attacker-objective-matrix.md` | Seeds + lenses + objective pressure-test |
 | `chain*` | `ev-ranking.md`, `attack-thesis-methodology.md`, `exploit-composition.md`, `attacker-objective-matrix.md` | EV-ranked chain + goal-directed composition |
 | `sc_verify*`, `verify*` | `ev-ranking.md` | EV-ranked verification queue |
 | `skeptic` | (Layer 2 sufficient) | Doctrine covers adversarial reasoning |

@@ -42,7 +42,6 @@ LAYER3_FILES=(
     "attacker-objective-matrix.md"
     "exploit-composition.md"
     "pattern-candidate-schema.md"
-    "exploit-attempt-logging.md"
 )
 
 COPIED=0
