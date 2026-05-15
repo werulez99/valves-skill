@@ -1,6 +1,6 @@
 # Valves v1.8.1
 
-Adversarial methodology overlay for [Plamen V2](https://github.com/PashovAuditGroup) security auditor.
+Adversarial methodology overlay for [Plamen V2](https://github.com/PlamenTSV/plamen) security auditor.
 
 Plamen V2 runs the engine (phases, checkpoints, artifact gates). Valves injects the analytical methodology (adversarial doctrine, heuristic lenses, exploit composition, proof discipline, pattern library).
 
