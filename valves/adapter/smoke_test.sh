@@ -179,6 +179,12 @@ echo "--- Wrapper Script ---"
 grep -q "detect_language" ~/.valves/bin/valves-plamen 2>/dev/null && check 0 "wrapper has detect_language()" || check 1 "wrapper missing detect_language()"
 grep -q "inject-only" ~/.valves/bin/valves-plamen 2>/dev/null && check 0 "wrapper supports inject-only mode" || check 1 "wrapper missing inject-only mode"
 
+# 9b. Coverage summary parser
+echo ""
+echo "--- Coverage Summary Parser ---"
+[ -x ~/.valves/bin/summarize-exploit-attempts ] && check 0 "summarize-exploit-attempts executable" || check 1 "summarize-exploit-attempts not executable"
+grep -q "exploit_attempt_coverage" ~/.valves/bin/summarize-exploit-attempts 2>/dev/null && check 0 "parser writes exploit_attempt_coverage.md" || check 1 "parser missing output file reference"
+
 # 10. Methodology injection test
 echo ""
 echo "--- Injection Test ---"

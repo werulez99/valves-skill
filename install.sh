@@ -1,5 +1,5 @@
 #!/bin/bash
-# Valves v1.8.2 Installer
+# Valves v1.8.3 Installer
 # Installs the Valves methodology overlay for Plamen V2.
 #
 # Prerequisites: Plamen V2 installed at ~/.plamen/
@@ -14,7 +14,7 @@ CLAUDE_MD="$HOME/.claude/CLAUDE.md"
 die()  { echo "ERROR: $1" >&2; exit 1; }
 info() { echo "  + $1"; }
 
-echo "=== Valves v1.8.2 Installer ==="
+echo "=== Valves v1.8.3 Installer ==="
 echo ""
 
 [ -f "$HOME/.plamen/scripts/plamen_driver.py" ] || die "Plamen V2 not found at ~/.plamen/. Install Plamen V2 first."
@@ -32,6 +32,7 @@ chmod +x "$VALVES_HOME/adapter/inject_methodology.sh"
 chmod +x "$VALVES_HOME/adapter/install_overlay.sh"
 chmod +x "$VALVES_HOME/adapter/smoke_test.sh"
 chmod +x "$VALVES_HOME/bin/valves-plamen"
+chmod +x "$VALVES_HOME/bin/summarize-exploit-attempts"
 info "Valves tree installed to $VALVES_HOME"
 
 echo "Installing Layer 2 rules..."
@@ -51,7 +52,7 @@ else
     cat >> "$CLAUDE_MD" << 'VALVESBLOCK'
 
 <!-- VALVES:START — managed by valves overlay, do not edit -->
-## Valves Methodology Overlay (v1.8.2)
+## Valves Methodology Overlay (v1.8.3)
 
 Always-loaded (via ~/.claude/rules/): doctrine, proof-discipline, exploit-preservation.
 

@@ -1,4 +1,4 @@
-# Valves v1.8.2
+# Valves v1.8.3
 
 Adversarial methodology overlay for [Plamen V2](https://github.com/PashovAuditGroup) security auditor.
 
@@ -42,8 +42,19 @@ cd <your-project>
 - **Attacker Objective Matrix** — 14 objectives x 15 actor capabilities
 - **Multi-Step Exploit Composer** — 6-step protocol for composing isolated signals into exploit paths
 - **Exploit Attempt Logging** — makes RC-AGENT misses visible by logging what agents tested vs skipped
+- **Coverage Summary Parser** — deterministic bash script extracts UNTESTED/CONFIRMED/REFUTED/PARTIAL from agent outputs (no LLM, no usage)
 - **642 Vulnerability Patterns** — 562 Solodit + 80 Cantina
 - **Learned Pattern System** — post-audit curator-approved pattern promotion
+
+## Post-Analysis Coverage
+
+After breadth/depth phases complete, run the coverage parser:
+
+```bash
+~/.valves/bin/summarize-exploit-attempts .scratchpad
+```
+
+Outputs `.scratchpad/exploit_attempt_coverage.md` — shows which attacker objectives agents tested, refuted, or left UNTESTED. No agents spawned, no usage burned.
 
 ## Validate
 
