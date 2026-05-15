@@ -1,0 +1,1 @@
+../rules/symmetric-pairs.md

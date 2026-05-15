@@ -1,0 +1,180 @@
+#!/bin/bash
+# valves-plamen — Inject Valves methodology and run Plamen V2.
+#
+# Usage:
+#   valves-plamen <mode>           Start a fresh audit (light | core | thorough)
+#   valves-plamen resume           Resume an interrupted audit
+#   valves-plamen inject-only      Inject methodology without launching
+#   valves-plamen                  Inject + show status / next steps
+#
+# This script never modifies ~/.plamen/. All writes go to ~/.valves/ or .scratchpad/.
+
+set -euo pipefail
+
+VALVES_ROOT="$HOME/.valves"
+INJECT_SCRIPT="$VALVES_ROOT/adapter/inject_methodology.sh"
+PLAMEN_DRIVER="$HOME/.plamen/scripts/plamen_driver.py"
+PROJECT_ROOT="${PWD}"
+SCRATCHPAD="$PROJECT_ROOT/.scratchpad"
+CONFIG="$SCRATCHPAD/config.json"
+
+# ── Helpers ──────────────────────────────────────────────────────────────
+
+die()  { echo "ERROR: $1" >&2; exit 1; }
+info() { echo "  $1"; }
+
+detect_language() {
+    local sol rs move
+    sol=$(find "$PROJECT_ROOT" -name "*.sol" -not -path "*/node_modules/*" -not -path "*/out/*" -not -path "*/cache/*" 2>/dev/null | head -1)
+    rs=$(find "$PROJECT_ROOT" -name "*.rs" -not -path "*/target/*" 2>/dev/null | head -1)
+    move=$(find "$PROJECT_ROOT" -name "*.move" 2>/dev/null | head -1)
+
+    if [ -n "$sol" ]; then echo "evm"
+    elif [ -n "$rs" ]; then
+        if grep -rq "soroban" "$PROJECT_ROOT/Cargo.toml" 2>/dev/null; then echo "soroban"
+        elif grep -rq "anchor" "$PROJECT_ROOT/Cargo.toml" 2>/dev/null; then echo "solana"
+        else echo "soroban"
+        fi
+    elif [ -n "$move" ]; then
+        if grep -rq "AptosFramework\|aptos" "$PROJECT_ROOT/Move.toml" 2>/dev/null; then echo "aptos"
+        else echo "sui"
+        fi
+    else echo "evm"
+    fi
+}
+
+inject_methodology() {
+    mkdir -p "$SCRATCHPAD"
+    bash "$INJECT_SCRIPT" "$SCRATCHPAD"
+
+    local meth_dir="$SCRATCHPAD/_valves_methodology"
+    if [ ! -d "$meth_dir" ]; then
+        die "Methodology injection failed — $meth_dir not created"
+    fi
+    local count
+    count=$(find "$meth_dir" -maxdepth 1 -name "*.md" | wc -l)
+    if [ "$count" -lt 10 ]; then
+        echo "WARNING: Only $count methodology files injected (expected 20+)"
+    fi
+}
+
+write_config() {
+    local mode="$1"
+    local lang
+    lang=$(detect_language)
+
+    mkdir -p "$SCRATCHPAD"
+    cat > "$CONFIG" <<ENDJSON
+{
+    "project_root": "$PROJECT_ROOT",
+    "scratchpad": "$SCRATCHPAD",
+    "mode": "$mode",
+    "pipeline": "sc",
+    "language": "$lang",
+    "cli_backend": "claude",
+    "docs_path": "",
+    "scope_file": "",
+    "scope_notes": "",
+    "proven_only": false
+}
+ENDJSON
+    info "Config written: $CONFIG"
+    info "Language: $lang | Mode: $mode | Pipeline: sc"
+}
+
+launch_driver() {
+    local extra_args=("${@}")
+    echo ""
+    echo "Launching Plamen V2 driver..."
+    echo "  Config:  $CONFIG"
+    echo "  Monitor: tail -f $SCRATCHPAD/_plamen.log"
+    echo ""
+    echo "If interrupted, resume with:"
+    echo "  ~/.valves/bin/valves-plamen resume"
+    echo ""
+    python3 "$PLAMEN_DRIVER" "$CONFIG" "${extra_args[@]}"
+}
+
+show_status() {
+    echo ""
+    if [ -f "$CONFIG" ]; then
+        local mode lang
+        mode=$(python3 -c "import json,sys; print(json.load(open('$CONFIG'))['mode'])" 2>/dev/null || echo "?")
+        lang=$(python3 -c "import json,sys; print(json.load(open('$CONFIG'))['language'])" 2>/dev/null || echo "?")
+        echo "Existing audit found."
+        info "Mode: $mode | Language: $lang"
+        info "Config: $CONFIG"
+        if [ -f "$SCRATCHPAD/_v2_checkpoint.json" ]; then
+            local last_phase
+            last_phase=$(python3 -c "import json; c=json.load(open('$SCRATCHPAD/_v2_checkpoint.json')); print(c.get('last_completed','(none)'))" 2>/dev/null || echo "?")
+            info "Last phase: $last_phase"
+        fi
+        echo ""
+        echo "To resume:  ~/.valves/bin/valves-plamen resume"
+        echo "To restart: ~/.valves/bin/valves-plamen <mode> (overwrites config)"
+    else
+        echo "No existing audit in this directory."
+        echo ""
+        echo "To start:   ~/.valves/bin/valves-plamen <mode>"
+        echo "  Modes:    light | core | thorough"
+        echo ""
+        echo "Example:    ~/.valves/bin/valves-plamen core"
+    fi
+}
+
+# ── Pre-flight checks ────────────────────────────────────────────────────
+
+[ -f "$VALVES_ROOT/VERSION" ] || die "Valves not installed — $VALVES_ROOT/VERSION not found"
+[ -f "$PLAMEN_DRIVER" ]       || die "Plamen V2 driver not found at $PLAMEN_DRIVER"
+[ -x "$INJECT_SCRIPT" ]       || die "Inject script not executable — $INJECT_SCRIPT"
+
+VERSION=$(cat "$VALVES_ROOT/VERSION")
+echo "=== Valves $VERSION + Plamen V2 ==="
+echo "  Project: $PROJECT_ROOT"
+
+# ── Parse command ────────────────────────────────────────────────────────
+
+CMD="${1:-}"
+shift || true
+
+case "$CMD" in
+    light|core|thorough)
+        # Fresh audit: create config, inject, launch
+        inject_methodology
+        write_config "$CMD"
+        launch_driver "$@"
+        ;;
+
+    resume)
+        # Resume: inject (re-inject is idempotent), launch with existing config
+        [ -f "$CONFIG" ] || die "No config.json found at $CONFIG — nothing to resume. Start with: valves-plamen <mode>"
+        inject_methodology
+        launch_driver "$@"
+        ;;
+
+    inject-only)
+        # Inject only, no launch
+        inject_methodology
+        echo ""
+        echo "Valves methodology injected to: $SCRATCHPAD/_valves_methodology/"
+        echo ""
+        echo "Next: run /plamen-wizard or /plamen inside Claude Code from this directory."
+        ;;
+
+    "")
+        # No command: inject + show status
+        inject_methodology
+        show_status
+        ;;
+
+    *)
+        echo "Unknown command: $CMD"
+        echo ""
+        echo "Usage:"
+        echo "  valves-plamen <mode>        Start audit (light | core | thorough)"
+        echo "  valves-plamen resume        Resume interrupted audit"
+        echo "  valves-plamen inject-only   Inject methodology without launching"
+        echo "  valves-plamen               Show status and next steps"
+        exit 1
+        ;;
+esac

@@ -1,0 +1,1 @@
+../rules/bug-class-registry.md

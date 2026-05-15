@@ -1,0 +1,1 @@
+../rules/admin-setter-validation.md

@@ -1,0 +1,1 @@
+../rules/external-state-mutability.md
